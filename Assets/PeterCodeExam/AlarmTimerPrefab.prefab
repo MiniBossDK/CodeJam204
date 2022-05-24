@@ -168,6 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timerText: {fileID: 4848609140403087264}
   stopButton: {fileID: 4848609140387292325}
+  sensortest: {fileID: 0}
 --- !u!1 &4848609140387292327
 GameObject:
   m_ObjectHideFlags: 0

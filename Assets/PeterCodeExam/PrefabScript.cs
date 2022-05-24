@@ -12,8 +12,9 @@ public class PrefabScript : MonoBehaviour
 
     //Timer skal kunne stoppes både ved at klikke på en knap, men også ved at bruge accelerometeret. Undersøg hvordan man kan indarbejde WhipEffect principer i dette script. 
     //Code borrowed from WhipEffect script, and modified to suit the intended functionality. 
-    float thresh = 3f;
+    float thresh = 2f;
     private Vector3 accelInfo;
+
 
     private Transform parentCanvas;
 

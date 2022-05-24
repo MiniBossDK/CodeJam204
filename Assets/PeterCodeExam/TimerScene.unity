@@ -1229,6 +1229,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Panel(fixed)
       objectReference: {fileID: 0}
+    - target: {fileID: 8449600769556091844, guid: 8e25bdf2b485e4eb4ac2956c36da16ec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: TimerScene
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e25bdf2b485e4eb4ac2956c36da16ec, type: 3}
 --- !u!1 &606092436
@@ -2039,7 +2043,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: FlashlightScene
+          m_StringArgument: TimerScene
           m_BoolArgument: 0
         m_CallState: 1
 --- !u!114 &851956755
