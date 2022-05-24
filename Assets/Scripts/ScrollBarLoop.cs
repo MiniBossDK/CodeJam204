@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -16,12 +17,13 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     private RectTransform scrollContent;
     private RectTransform scrollViewport;
     [SerializeField]
-    private HorizontalLayoutGroup layoutGroup;
-    [SerializeField]
     private RectTransform snapRect;
+
+    private float elementDistance;
 
     private RectTransform[] scrollElements;
     private float centerPosX;
+    private Vector3[] scrollContentCorners;
 
     [Header("Content Properties")]
     [SerializeField]
@@ -57,14 +59,14 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         scrollViewport = scrollRect.viewport ? scrollRect.viewport : throw new NullReferenceException("ScrollRect component is missing a viewport component!");
         scrollElements = GetElements();
 
-        layoutGroup = scrollContent.GetComponent<HorizontalLayoutGroup>();
-
         centerPosX = snapRect.position.x;
 
-        //MoveElementToEnd(scrollElements[0]);
-
+        elementDistance = Mathf.Abs(scrollElements[0].anchoredPosition.x - scrollElements[1].anchoredPosition.x);
+        
+        scrollContentCorners = new Vector3[4];
+        scrollContent.GetWorldCorners(scrollContentCorners);
+        
         StartCoroutine(LateStart());
-        StartCoroutine(TestChangePosition());
 
         /*
         bttnLength = bttn.Length;
@@ -88,10 +90,26 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private void OnScrollChanged(Vector2 pos)
     {
-        Debug.Log(scrollElements[0].position.x);
-        for (int i = 0; i < scrollElements.Length; i++)
+        foreach (var element in scrollElements)
         {
-            IsElementOutOfBounds(i, scrollElements[i]);
+            if (IsElementOutOfBounds(element))
+            {
+                var elementPosX = element.position.x;
+                var elementAnchoredPos = element.anchoredPosition;
+                var posX = elementAnchoredPos.x;
+                var posY = elementAnchoredPos.y;
+                
+                if (elementPosX < 0)
+                {
+                    var newPosX = posX + (scrollElements.Length * elementDistance);
+                    element.anchoredPosition = new Vector2(newPosX, posY);
+                }
+                else if (elementPosX > 0)
+                {
+                    var newPosX = posX - (scrollElements.Length * elementDistance);
+                    element.anchoredPosition = new Vector2(newPosX, posY);
+                }
+            }
         }
     }
 
@@ -106,7 +124,6 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
             {
                 closestDistance = scrollElementDistToCenterX;
                 closestElement = scrollElement;
-                Debug.Log(closestElement + "  " + closestDistance);
             }
         }
         return closestElement;
@@ -138,14 +155,14 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         scrollContent.position = new Vector2(endPosition, scrollContent.position.y);
     }
 
-    private void RepositionContentToElement(Transform element)
+    private void SnapElementToCenter(Transform element)
     {
         var contentPos = scrollContent.position;
 
         scrollContent.position = new Vector2((contentPos.x - element.position.x) + centerPosX, contentPos.y);
     }
 
-    private void LerpRepositionContentToElement(Transform element)
+    private void LerpSnapElementToCenter(Transform element)
     {
         var contentPos = scrollContent.position;
 
@@ -153,22 +170,18 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         StartCoroutine(lerpAnimation);
     }
 
-    private bool IsElementOutOfBounds(int index, RectTransform element)
+    private bool IsElementOutOfBounds([NotNull] RectTransform element)
     {
-        float scrollViewPosX = scrollViewport.position.x;
-        var scrollViewRectWidth = scrollViewport.rect.width;
-        float maxPos = scrollViewPosX + (scrollViewRectWidth / 2);
-        float minPos = scrollViewPosX - (scrollViewRectWidth / 2);
+        if (element == null) throw new ArgumentNullException(nameof(element));
 
-        /*
+        const float threshold = 0.1f;
         
-        if (distanceFromCenter > maxPos || distanceFromCenter < minPos)
-        {
-            Debug.Log("Out of bounds: " + distanceFromCenter);
-            return true;
-        }
-        */
-        return false;
+        var elementPosX = element.position.x;
+        
+        var cornersLeft = scrollContentCorners[0].x;
+        var cornersRight = scrollContentCorners[2].x;
+
+        return elementPosX < (cornersLeft - threshold) || elementPosX > (cornersRight + threshold);
     }
 
     /*
@@ -275,30 +288,14 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     public void OnEndDrag(PointerEventData eventData)
     {
         var element = GetClosestElementToCenter();
-        LerpRepositionContentToElement(element);
+        LerpSnapElementToCenter(element);
         scrollRect.inertia = true;
-    }
-
-    private void MoveElementToEnd(RectTransform element)
-    {
-
-        scrollContent.sizeDelta = new Vector2(scrollContent.rect.width + (layoutGroup.spacing + element.rect.width), scrollContent.rect.height);
     }
 
     private IEnumerator LateStart()
     {
         yield return new WaitForEndOfFrame();
-        RepositionContentToElement(scrollElements[startElement]);
-    }
-
-    private IEnumerator TestChangePosition()
-    {
-        while (true)
-        {
-            scrollElements[0].SetSiblingIndex(scrollElements.Length - 1);
-            scrollElements = GetElements();
-            yield return new WaitForSeconds(2);
-        }
+        SnapElementToCenter(scrollElements[startElement]);
     }
 }
 
