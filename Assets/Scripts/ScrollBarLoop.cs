@@ -13,12 +13,6 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ScrollRect))]
 public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
-    private enum ScrollDirection
-    {
-        Left,
-        Right
-    }
-
     private ScrollRect scrollRect;
     private RectTransform scrollContent;
     private RectTransform scrollViewport;
@@ -139,11 +133,6 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
                 }
             }
         }
-    }
-
-    private ScrollDirection GetScrollDirection()
-    {
-        return ScrollDirection.Left;
     }
 
     private RectTransform GetClosestElementToCenter()
