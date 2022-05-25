@@ -44,11 +44,11 @@ public class GPSManager : SingletonPattern<GPSManager>
             yield break;
         }
 
-        latitude = Input.location.lastData.latitude;
-        longitude = Input.location.lastData.longitude;
+        //latitude = Input.location.lastData.latitude;
+        //longitude = Input.location.lastData.longitude;
 
-        savedLatitude = Input.location.lastData.latitude;
-        savedLongitude = Input.location.lastData.longitude;
+        //savedLatitude = Input.location.lastData.latitude;
+        //savedLongitude = Input.location.lastData.longitude;
 
         StartCoroutine(coroutine);
     }

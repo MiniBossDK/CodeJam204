@@ -14,6 +14,6 @@ public class CoordinatesText : MonoBehaviour
     {
         coordinates.text = "Latitude:" + GPSManager.Instance.latitude.ToString() + "   Longitude:" + GPSManager.Instance.longitude.ToString();
 
-        savedCoordinates.text = "Latitude:" + GPSManager.Instance.savedLatitude.ToString() + "   Longitude:" + GPSManager.Instance.savedLongitude.ToString();
+        savedCoordinates.text = "Latitude:" + ButtonController.Instance.savedLatitude.ToString() + "   Longitude:" + ButtonController.Instance.savedLongitude.ToString();
     }
 }

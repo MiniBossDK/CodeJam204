@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ButtonController : MonoBehaviour
+public class ButtonController : SingletonPattern<ButtonController>
 {
     public Button button;
     public float savedLatitude;
