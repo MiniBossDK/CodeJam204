@@ -1323,7 +1323,7 @@ PrefabInstance:
       objectReference: {fileID: 442818153}
     - target: {fileID: 3477769526006697112, guid: 8e25bdf2b485e4eb4ac2956c36da16ec, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3477769526006697112, guid: 8e25bdf2b485e4eb4ac2956c36da16ec, type: 3}
       propertyPath: m_ShowMaskGraphic

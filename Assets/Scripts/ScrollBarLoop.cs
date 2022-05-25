@@ -13,6 +13,12 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ScrollRect))]
 public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
+    private enum ScrollDirection
+    {
+        Left,
+        Right
+    }
+
     private ScrollRect scrollRect;
     private RectTransform scrollContent;
     private RectTransform scrollViewport;
@@ -32,6 +38,8 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     private float snapAnimationDuration;
 
     private IEnumerator lerpAnimation;
+    private bool isDragging;
+    public float[] scrollDirectionValues = new float[4];
 
     /*
     public RectTransform panel; //to hold the scrollpanel
@@ -90,10 +98,25 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private void OnScrollChanged(Vector2 pos)
     {
+        scrollDirectionValues[0] = pos.x;
+        scrollDirectionValues[1] = scrollDirectionValues[0];
+        scrollDirectionValues[2] = scrollDirectionValues[1];
+        scrollDirectionValues[3] = scrollDirectionValues[2];
+        
+        /*
+        const float scrollVelocitySnap = 50f;
+        if (!isDragging)
+        {
+            var element = GetClosestElementToCenter();
+            LerpSnapElementToCenter(element);
+        }
+        */
+            
         foreach (var element in scrollElements)
         {
             if (IsElementOutOfBounds(element))
             {
+                // TODO - Make the following lines of code a function
                 var elementPosX = element.position.x;
                 var elementAnchoredPos = element.anchoredPosition;
                 var posX = elementAnchoredPos.x;
@@ -111,6 +134,11 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
                 }
             }
         }
+    }
+
+    private ScrollDirection GetScrollDirection()
+    {
+        return ScrollDirection.Left;
     }
 
     private RectTransform GetClosestElementToCenter()
@@ -281,15 +309,13 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     */
     public void OnBeginDrag(PointerEventData eventData)
     {
+        isDragging = true;
         if (lerpAnimation != null) StopCoroutine(lerpAnimation);
-        scrollRect.inertia = false;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        var element = GetClosestElementToCenter();
-        LerpSnapElementToCenter(element);
-        scrollRect.inertia = true;
+        isDragging = false;
     }
 
     private IEnumerator LateStart()
