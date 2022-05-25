@@ -26,6 +26,7 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     private RectTransform snapRect;
 
     private float elementDistance;
+    private bool isLerping;
 
     private RectTransform[] scrollElements;
     private float centerPosX;
@@ -39,7 +40,6 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private IEnumerator lerpAnimation;
     private bool isDragging;
-    public float[] scrollDirectionValues = new float[4];
 
     /*
     public RectTransform panel; //to hold the scrollpanel
@@ -65,15 +65,15 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     {
         scrollContent = scrollRect.content ? scrollRect.content : throw new NullReferenceException("ScrollRect component is missing a content component!");
         scrollViewport = scrollRect.viewport ? scrollRect.viewport : throw new NullReferenceException("ScrollRect component is missing a viewport component!");
-        scrollElements = GetElements();
+        scrollElements = GetScrollElements();
 
         centerPosX = snapRect.position.x;
 
         elementDistance = Mathf.Abs(scrollElements[0].anchoredPosition.x - scrollElements[1].anchoredPosition.x);
-        
+
         scrollContentCorners = new Vector3[4];
         scrollContent.GetWorldCorners(scrollContentCorners);
-        
+
         StartCoroutine(LateStart());
 
         /*
@@ -98,20 +98,23 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private void OnScrollChanged(Vector2 pos)
     {
-        scrollDirectionValues[0] = pos.x;
-        scrollDirectionValues[1] = scrollDirectionValues[0];
-        scrollDirectionValues[2] = scrollDirectionValues[1];
-        scrollDirectionValues[3] = scrollDirectionValues[2];
-        
-        /*
-        const float scrollVelocitySnap = 50f;
+        const float scrollVelocitySnapTarget = 30f;
         if (!isDragging)
         {
-            var element = GetClosestElementToCenter();
-            LerpSnapElementToCenter(element);
+            var scrollVelocityX = scrollRect.velocity.x;
+            if (scrollVelocityX < scrollVelocitySnapTarget || scrollVelocityX > -scrollVelocitySnapTarget)
+            {
+                isLerping = true;
+                var element = GetClosestElementToCenter();
+                LerpSnapElementToCenter(element);
+            }
         }
-        */
-            
+
+        HandleInfiniteScroll();
+    }
+
+    private void HandleInfiniteScroll()
+    {
         foreach (var element in scrollElements)
         {
             if (IsElementOutOfBounds(element))
@@ -121,13 +124,13 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
                 var elementAnchoredPos = element.anchoredPosition;
                 var posX = elementAnchoredPos.x;
                 var posY = elementAnchoredPos.y;
-                
-                if (elementPosX < 0)
+
+                if (elementPosX < centerPosX)
                 {
                     var newPosX = posX + (scrollElements.Length * elementDistance);
                     element.anchoredPosition = new Vector2(newPosX, posY);
                 }
-                else if (elementPosX > 0)
+                else if (elementPosX > centerPosX)
                 {
                     var newPosX = posX - (scrollElements.Length * elementDistance);
                     element.anchoredPosition = new Vector2(newPosX, posY);
@@ -157,7 +160,7 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         return closestElement;
     }
 
-    private RectTransform[] GetElements()
+    private RectTransform[] GetScrollElements()
     {
         var elements = new RectTransform[scrollContent.childCount];
 
@@ -181,6 +184,7 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         }
         // snaps the circle position to the end position
         scrollContent.position = new Vector2(endPosition, scrollContent.position.y);
+        isLerping = false;
     }
 
     private void SnapElementToCenter(Transform element)
@@ -196,6 +200,7 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         lerpAnimation = LerpToElement(contentPos.x, (contentPos.x - element.position.x) + centerPosX, snapAnimationDuration);
         StartCoroutine(lerpAnimation);
+
     }
 
     private bool IsElementOutOfBounds([NotNull] RectTransform element)
@@ -203,9 +208,9 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         if (element == null) throw new ArgumentNullException(nameof(element));
 
         const float threshold = 0.1f;
-        
+
         var elementPosX = element.position.x;
-        
+
         var cornersLeft = scrollContentCorners[0].x;
         var cornersRight = scrollContentCorners[2].x;
 

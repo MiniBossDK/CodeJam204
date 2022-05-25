@@ -369,7 +369,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   snapRect: {fileID: 1315717955}
   startElement: 4
-  snapAnimationDuration: 0.5
+  snapAnimationDuration: 0.2
+  scrollDirectionValues:
+  - 0
+  - 0
+  - 0
+  - 0
 --- !u!224 &636240714 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 234075347312646418, guid: 3743bc047b6492245aa5c387245ac9e8, type: 3}
