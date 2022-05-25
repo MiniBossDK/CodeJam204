@@ -9,49 +9,56 @@ public class GPSManager : SingletonPattern<GPSManager>
     public float savedLatitude;
     public float savedLongitude;
     private int maxWait = 20;
+    float updateWaitTime = 2f;
     IEnumerator coroutine;
 
     private IEnumerator Start()
     {
         coroutine = UpdateLocation();
 
+        // Check if the user has location service enabled.
         if (!Input.location.isEnabledByUser)
             yield break;
 
+        // Starts the location service.
         Input.location.Start();
 
+        // Waits until the location service initializes
         while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
         {
             yield return new WaitForSeconds(1);
             maxWait--;
         }
 
+        // If the service didn't initialize in 20 seconds this cancels location service use.
         if (maxWait < 1)
         {
             print("Timed out");
             yield break;
         }
 
+        // If the connection failed this cancels location service use.
         if (Input.location.status == LocationServiceStatus.Failed)
         {
             print("Unable to determine device location");
             yield break;
         }
 
+        latitude = Input.location.lastData.latitude;
+        longitude = Input.location.lastData.longitude;
+
         savedLatitude = Input.location.lastData.latitude;
         savedLongitude = Input.location.lastData.longitude;
 
-        Debug.Log(savedLatitude);
-        Debug.Log(savedLongitude);
-
-        latitude = Input.location.lastData.latitude;
-        longitude = Input.location.lastData.longitude;
         StartCoroutine(coroutine);
     }
 
+    /// <summary>
+    /// This method will update the location coordinates continously 
+    /// </summary>
+    /// <returns></returns>
     IEnumerator UpdateLocation()
     {
-        float updateWaitTime = 2f; //Every  3 seconds
         WaitForSeconds updateTime = new WaitForSeconds(updateWaitTime);
 
         while (true)
@@ -67,12 +74,10 @@ public class GPSManager : SingletonPattern<GPSManager>
             StopCoroutine(coroutine);
         }
 
+        /// stops the GPS when the application is closed
         void OnDisable()
         {
             StopGPS();
         }
-
     }
-
-    
 }
