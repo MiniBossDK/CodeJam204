@@ -98,19 +98,21 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private void OnScrollChanged(Vector2 pos)
     {
-        const float scrollVelocitySnapTarget = 30f;
-        if (!isDragging)
+        HandleInfiniteScroll();
+        var scrollVelocityX = scrollRect.velocity.x;
+        if (scrollVelocityX == 0) return;
+        
+        const float scrollVelocitySnapTarget = 200f;
+        
+        if (!isDragging && lerpAnimation == null)
         {
-            var scrollVelocityX = scrollRect.velocity.x;
-            if (scrollVelocityX < scrollVelocitySnapTarget || scrollVelocityX > -scrollVelocitySnapTarget)
+            if (Math.Abs(scrollVelocityX) < scrollVelocitySnapTarget)
             {
-                isLerping = true;
+                scrollRect.inertia = false;
                 var element = GetClosestElementToCenter();
                 LerpSnapElementToCenter(element);
             }
         }
-
-        HandleInfiniteScroll();
     }
 
     private void HandleInfiniteScroll()
@@ -184,7 +186,6 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         }
         // snaps the circle position to the end position
         scrollContent.position = new Vector2(endPosition, scrollContent.position.y);
-        isLerping = false;
     }
 
     private void SnapElementToCenter(Transform element)
@@ -200,7 +201,6 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         lerpAnimation = LerpToElement(contentPos.x, (contentPos.x - element.position.x) + centerPosX, snapAnimationDuration);
         StartCoroutine(lerpAnimation);
-
     }
 
     private bool IsElementOutOfBounds([NotNull] RectTransform element)
@@ -314,8 +314,14 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     */
     public void OnBeginDrag(PointerEventData eventData)
     {
+        scrollRect.inertia = true;
         isDragging = true;
-        if (lerpAnimation != null) StopCoroutine(lerpAnimation);
+        
+        if (lerpAnimation != null)
+        {
+            StopCoroutine(lerpAnimation);
+            lerpAnimation = null;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
