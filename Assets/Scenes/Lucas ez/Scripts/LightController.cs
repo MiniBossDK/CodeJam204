@@ -8,7 +8,7 @@ public class LightController : MonoBehaviour
     GPSManager GPS;
     ButtonController BC;
     public bool isDone = false;
-    public float threshold;
+    public float threshold = 00.00010f;
 
     private void Start()
     {
@@ -22,22 +22,25 @@ public class LightController : MonoBehaviour
         LocationChecker();
     }
 
-    // m�ske bruge switch? men ville jeg s� ik sku bruge en switch for b�de latitude?
+    /// <summary>
+    /// This method checks whether the current location differs from the saved location by a threshold, and turns on/off the lights accordingly
+    /// </summary>
     private void LocationChecker()
     {
-        if (!isDone && GPS.latitude > BC.savedLatitude || GPS.latitude < BC.savedLatitude)
-        {
-            FLM.FL_Start();
-            isDone = true;
-        }
-        else if (!isDone && GPS.longitude > BC.savedLongitude || GPS.longitude < BC.savedLongitude)
-        {
-            FLM.FL_Start();
-            isDone = true;
-        }
-        else
+        if (!isDone && GPS.latitude > BC.savedLatitude + threshold || !isDone && GPS.latitude < BC.savedLatitude - threshold)
         {
             FLM.FL_Stop();
+            isDone = true;
+        }
+        else if (!isDone && GPS.longitude > BC.savedLongitude + threshold || !isDone && GPS.longitude < BC.savedLongitude - threshold)
+        {
+            FLM.FL_Stop();
+            isDone = true;
+        }
+        else //(isDone && GPS.latitude == BC.savedLatitude || isDone && GPS.longitude == BC.savedLongitude)
+        {
+            FLM.FL_Start();
+            isDone = false;
         }
     }
         

@@ -6,12 +6,14 @@ public class GPSManager : SingletonPattern<GPSManager>
 {
     public float latitude;
     public float longitude;
-    public float savedLatitude;
-    public float savedLongitude;
+    //public float savedLatitude;
+    //public float savedLongitude;
     private int maxWait = 20;
-    float updateWaitTime = 2f;
+    private float updateWaitTime = 2f;
     IEnumerator coroutine;
 
+    // the foundation of this code has been taken from the Unity Manual on GPS location, but since modified to fit the purpose of my
+    // application. Link to Unity Manual where code is from: 
     private IEnumerator Start()
     {
         coroutine = UpdateLocation();
@@ -43,12 +45,6 @@ public class GPSManager : SingletonPattern<GPSManager>
             print("Unable to determine device location");
             yield break;
         }
-
-        //latitude = Input.location.lastData.latitude;
-        //longitude = Input.location.lastData.longitude;
-
-        //savedLatitude = Input.location.lastData.latitude;
-        //savedLongitude = Input.location.lastData.longitude;
 
         StartCoroutine(coroutine);
     }
