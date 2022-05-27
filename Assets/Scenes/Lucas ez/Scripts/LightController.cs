@@ -10,6 +10,7 @@ public class LightController : MonoBehaviour
     public bool isDone = false;
     public float threshold = 00.00010f;
 
+
     private void Start()
     {
         GPS = GPSManager.Instance;
@@ -37,7 +38,7 @@ public class LightController : MonoBehaviour
             FLM.FL_Stop();
             isDone = true;
         }
-        else //(isDone && GPS.latitude == BC.savedLatitude || isDone && GPS.longitude == BC.savedLongitude)
+        else if (isDone && GPS.latitude == BC.savedLatitude || isDone && GPS.longitude == BC.savedLongitude)
         {
             FLM.FL_Start();
             isDone = false;
