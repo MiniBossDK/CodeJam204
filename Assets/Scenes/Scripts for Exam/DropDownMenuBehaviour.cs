@@ -1,27 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 public class DropDownMenuBehaviour : MonoBehaviour
 {
     [SerializeField]
     private TMP_Dropdown _dropdown;
+
     private InputBehaviour _IB;
     // Start is called before the first frame update
     void Start()
     {
+        // InputBehaviour Script - My own Script
         _IB = GetComponent<InputBehaviour>();
         _dropdown.onValueChanged.AddListener(DropDownChanged);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void DropDownChanged(int index)
+    private void DropDownChanged(int index)
     {
         if (index == 0)
         {

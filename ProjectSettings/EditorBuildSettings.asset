@@ -6,21 +6,27 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 0
-    path: Assets/Scenes/TestCanvas.unity
-    guid: b79f32eff0901374eb2fe9b3d2548a35
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 0
-    path: Assets/Scenes/ButtonScene.unity
-    guid: 5bf881b82772f5548b71d9d3fb402f50
-  - enabled: 1
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
     path: Assets/Scenes/BrigtnessSliderUI.unity
     guid: 398a9623a5dd8439bb67073990008b10
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/S8+.unity
     guid: 13e0857c9bc5a4314906ba0c40971cae
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/canvas.unity
-    guid: 1e79a66e4d0e01846ae99af0d1f56a2c
+    path: Assets/Scenes/FlashlightScene.unity
+    guid: c23b4402dbd388f4cab1cf3655b72992
+  - enabled: 1
+    path: "Assets/Scenes/PlzHj\xE6lpMig.unity"
+    guid: d0e18ae9d590b1c48b766222ac3c7e6d
   m_configObjects: {}
