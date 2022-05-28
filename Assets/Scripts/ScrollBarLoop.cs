@@ -18,13 +18,13 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     private RectTransform scrollViewport;
     [SerializeField]
     private RectTransform snapRect;
-
-    private float elementDistance;
     private bool isLerping;
 
     private RectTransform[] scrollElements;
     private float centerPosX;
-    private Vector3[] scrollContentCorners;
+    private Vector3[] scrollContentCorners = new Vector3[4];
+    private float leftContentCorner;
+    private float rightContentCorner;
 
     [Header("Content Properties")]
     [SerializeField]
@@ -34,6 +34,7 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private IEnumerator lerpAnimation;
     private bool isDragging;
+    private float[] elemDistances;
 
     /*
     public RectTransform panel; //to hold the scrollpanel
@@ -63,10 +64,10 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         centerPosX = snapRect.position.x;
 
-        elementDistance = Mathf.Abs(scrollElements[0].anchoredPosition.x - scrollElements[1].anchoredPosition.x);
-
-        scrollContentCorners = new Vector3[4];
         scrollContent.GetWorldCorners(scrollContentCorners);
+
+        leftContentCorner = scrollContentCorners[0].x;
+        rightContentCorner = scrollContentCorners[2].x;
 
         StartCoroutine(LateStart());
 
@@ -95,9 +96,9 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         HandleInfiniteScroll();
         var scrollVelocityX = scrollRect.velocity.x;
         if (scrollVelocityX == 0) return;
-        
+
         const float scrollVelocitySnapTarget = 200f;
-        
+
         if (!isDragging && lerpAnimation == null)
         {
             if (Math.Abs(scrollVelocityX) < scrollVelocitySnapTarget)
@@ -115,23 +116,30 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         {
             if (IsElementOutOfBounds(element))
             {
-                // TODO - Make the following lines of code a function
-                var elementPosX = element.position.x;
-                var elementAnchoredPos = element.anchoredPosition;
-                var posX = elementAnchoredPos.x;
-                var posY = elementAnchoredPos.y;
-
-                if (elementPosX < centerPosX)
-                {
-                    var newPosX = posX + (scrollElements.Length * elementDistance);
-                    element.anchoredPosition = new Vector2(newPosX, posY);
-                }
-                else if (elementPosX > centerPosX)
-                {
-                    var newPosX = posX - (scrollElements.Length * elementDistance);
-                    element.anchoredPosition = new Vector2(newPosX, posY);
-                }
+                RepositionElementToOppositeSide(element);
             }
+        }
+    }
+
+    private void RepositionElementToOppositeSide(RectTransform element)
+    {
+        var elementPosX = element.position.x;
+        var elementAnchoredPos = element.anchoredPosition;
+        var posX = elementAnchoredPos.x;
+        var posY = elementAnchoredPos.y;
+        var scrollContentWidth = scrollContent.rect.width;
+
+        if (elementPosX < centerPosX)
+        {
+            //var newPosX = posX + (scrollElements.Length * elementDistance);
+            var newPosX = posX + scrollContentWidth;
+            element.anchoredPosition = new Vector2(newPosX, posY);
+        }
+        else if (elementPosX > centerPosX)
+        {
+            //var newPosX = posX - (scrollElements.Length * elementDistance);
+            var newPosX = posX - scrollContentWidth;
+            element.anchoredPosition = new Vector2(newPosX, posY);
         }
     }
 
@@ -168,12 +176,10 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         float timeElapsed = 0;
         while (timeElapsed < duration)
         {
-            //changes the position of the circle over time
             scrollContent.position = new Vector2(Mathf.Lerp(startPosition, endPosition, timeElapsed / duration), scrollContent.position.y);
             timeElapsed += Time.deltaTime;
             yield return null;
         }
-        // snaps the circle position to the end position
         scrollContent.position = new Vector2(endPosition, scrollContent.position.y);
     }
 
@@ -200,10 +206,7 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         var elementPosX = element.position.x;
 
-        var cornersLeft = scrollContentCorners[0].x;
-        var cornersRight = scrollContentCorners[2].x;
-
-        return elementPosX < (cornersLeft - threshold) || elementPosX > (cornersRight + threshold);
+        return elementPosX < (leftContentCorner - threshold) || elementPosX > (rightContentCorner + threshold);
     }
 
     /*
@@ -305,7 +308,7 @@ public class ScrollBarLoop : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     {
         scrollRect.inertia = true;
         isDragging = true;
-        
+
         if (lerpAnimation != null)
         {
             StopCoroutine(lerpAnimation);
